@@ -1,0 +1,231 @@
+   1               		.file	"stepper.c"
+   2               	__SP_H__ = 0x3e
+   3               	__SP_L__ = 0x3d
+   4               	__SREG__ = 0x3f
+   5               	__tmp_reg__ = 0
+   6               	__zero_reg__ = 1
+   7               		.text
+   8               	.Ltext0:
+   9               		.cfi_sections	.debug_frame
+  10               	.global	next_step
+  12               	next_step:
+  13               	.LVL0:
+  14               	.LFB0:
+  15               		.file 1 "stepper.c"
+   1:stepper.c     **** #include "stepper.h"
+   2:stepper.c     **** 
+   3:stepper.c     **** const uint8_t step_list[8] =
+   4:stepper.c     **** {
+   5:stepper.c     **** 	0x0A, /* 1010 */
+   6:stepper.c     **** 	0x08, /* 1000 */
+   7:stepper.c     **** 	0x09, /* 1001 */
+   8:stepper.c     **** 	0x01, /* 0001 */
+   9:stepper.c     **** 	0x05, /* 0101 */
+  10:stepper.c     **** 	0x04, /* 0100 */
+  11:stepper.c     **** 	0x06, /* 0110 */
+  12:stepper.c     **** 	0x02  /* 0010 */
+  13:stepper.c     **** };
+  14:stepper.c     **** 
+  15:stepper.c     **** uint8_t next_step(uint8_t *state, uint8_t param)
+  16:stepper.c     **** {
+  16               		.loc 1 16 1 view -0
+  17               		.cfi_startproc
+  18               	/* prologue: function */
+  19               	/* frame size = 0 */
+  20               	/* stack size = 0 */
+  21               	.L__stack_usage = 0
+  22               		.loc 1 16 1 is_stmt 0 view .LVU1
+  23 0000 FC01      		movw r30,r24
+  17:stepper.c     **** 	uint8_t step, ret;
+  24               		.loc 1 17 2 is_stmt 1 view .LVU2
+  18:stepper.c     **** 	step = *state;
+  25               		.loc 1 18 2 view .LVU3
+  26               		.loc 1 18 7 is_stmt 0 view .LVU4
+  27 0002 2081      		ld r18,Z
+  28               	.LVL1:
+  19:stepper.c     **** 	ret = step_list[step - 0x80];
+  29               		.loc 1 19 2 is_stmt 1 view .LVU5
+  30               		.loc 1 19 23 is_stmt 0 view .LVU6
+  31 0004 A22F      		mov r26,r18
+  32 0006 B0E0      		ldi r27,0
+  33               		.loc 1 19 6 view .LVU7
+  34 0008 A050      		subi r26,lo8(-(step_list-128))
+  35 000a B040      		sbci r27,hi8(-(step_list-128))
+  36 000c 8C91      		ld r24,X
+  37               	.LVL2:
+  20:stepper.c     **** 
+  21:stepper.c     **** 	if(param & 1)
+  38               		.loc 1 21 2 is_stmt 1 view .LVU8
+  39 000e 61FB      		bst r22,1
+  40 0010 9927      		clr r25
+  41 0012 90F9      		bld r25,0
+  42               		.loc 1 21 4 is_stmt 0 view .LVU9
+  43 0014 60FF      		sbrs r22,0
+  44 0016 00C0      		rjmp .L2
+  22:stepper.c     **** 	{
+  23:stepper.c     **** 		/* full step */
+  24:stepper.c     **** 		if((param >> 1) & 1)
+  45               		.loc 1 24 3 is_stmt 1 view .LVU10
+  25:stepper.c     **** 		{
+  26:stepper.c     **** 			if(step % 2 == 0)
+  46               		.loc 1 26 16 is_stmt 0 view .LVU11
+  47 0018 322F      		mov r19,r18
+  48 001a 3170      		andi r19,lo8(1)
+  24:stepper.c     **** 		{
+  49               		.loc 1 24 5 view .LVU12
+  50 001c 9923      		tst r25
+  51 001e 01F0      		breq .L3
+  52               		.loc 1 26 4 is_stmt 1 view .LVU13
+  27:stepper.c     **** 			{
+  28:stepper.c     **** 				++step;
+  53               		.loc 1 28 5 is_stmt 0 view .LVU14
+  54 0020 91E0      		ldi r25,lo8(1)
+  26:stepper.c     **** 			{
+  55               		.loc 1 26 6 view .LVU15
+  56 0022 3111      		cpse r19,__zero_reg__
+  29:stepper.c     **** 			}
+  30:stepper.c     **** 			else
+  31:stepper.c     **** 			{
+  32:stepper.c     **** 				step += 2;
+  57               		.loc 1 32 5 is_stmt 1 view .LVU16
+  58               		.loc 1 32 10 is_stmt 0 view .LVU17
+  59 0024 92E0      		ldi r25,lo8(2)
+  60               	.L10:
+  61 0026 920F      		add r25,r18
+  62               	.LVL3:
+  33:stepper.c     **** 			}
+  34:stepper.c     **** 
+  35:stepper.c     **** 			if(step == 0x88)
+  63               		.loc 1 35 4 is_stmt 1 view .LVU18
+  64               		.loc 1 35 6 is_stmt 0 view .LVU19
+  65 0028 9838      		cpi r25,lo8(-120)
+  66 002a 01F4      		brne .L6
+  67               	.L12:
+  36:stepper.c     **** 			{
+  37:stepper.c     **** 				step = 0x80;
+  68               		.loc 1 37 10 view .LVU20
+  69 002c 90E8      		ldi r25,lo8(-128)
+  70               	.LVL4:
+  71               		.loc 1 37 10 view .LVU21
+  72 002e 00C0      		rjmp .L6
+  73               	.LVL5:
+  74               	.L3:
+  38:stepper.c     **** 			}
+  39:stepper.c     **** 		}
+  40:stepper.c     **** 		else
+  41:stepper.c     **** 		{
+  42:stepper.c     **** 			if(step % 2 == 0)
+  75               		.loc 1 42 4 is_stmt 1 view .LVU22
+  43:stepper.c     **** 			{
+  44:stepper.c     **** 				--step;
+  76               		.loc 1 44 5 is_stmt 0 view .LVU23
+  77 0030 9FEF      		ldi r25,lo8(-1)
+  42:stepper.c     **** 			{
+  78               		.loc 1 42 6 view .LVU24
+  79 0032 3111      		cpse r19,__zero_reg__
+  45:stepper.c     **** 			}
+  46:stepper.c     **** 			else
+  47:stepper.c     **** 			{
+  48:stepper.c     **** 				step -= 2;
+  80               		.loc 1 48 5 is_stmt 1 view .LVU25
+  81               		.loc 1 48 10 is_stmt 0 view .LVU26
+  82 0034 9EEF      		ldi r25,lo8(-2)
+  83               	.L11:
+  84 0036 920F      		add r25,r18
+  85               	.LVL6:
+  49:stepper.c     **** 			}
+  50:stepper.c     **** 
+  51:stepper.c     **** 			if(step == 0x7E)
+  86               		.loc 1 51 4 is_stmt 1 view .LVU27
+  87               		.loc 1 51 6 is_stmt 0 view .LVU28
+  88 0038 9E37      		cpi r25,lo8(126)
+  89 003a 01F4      		brne .L6
+  90               	.L13:
+  52:stepper.c     **** 			{
+  53:stepper.c     **** 				step = 0x86;
+  91               		.loc 1 53 10 view .LVU29
+  92 003c 96E8      		ldi r25,lo8(-122)
+  93               	.LVL7:
+  94               		.loc 1 53 10 view .LVU30
+  95 003e 00C0      		rjmp .L6
+  96               	.LVL8:
+  97               	.L2:
+  54:stepper.c     **** 			}
+  55:stepper.c     **** 		}
+  56:stepper.c     **** 	}
+  57:stepper.c     **** 	else
+  58:stepper.c     **** 	{
+  59:stepper.c     **** 		/* half step */
+  60:stepper.c     **** 		if((param >> 1) & 1)
+  98               		.loc 1 60 3 is_stmt 1 view .LVU31
+  99               		.loc 1 60 5 is_stmt 0 view .LVU32
+ 100 0040 9923      		tst r25
+ 101 0042 01F0      		breq .L9
+  61:stepper.c     **** 		{
+  62:stepper.c     **** 			if(++step == 0x88)
+ 102               		.loc 1 62 4 is_stmt 1 view .LVU33
+ 103               		.loc 1 62 6 is_stmt 0 view .LVU34
+ 104 0044 91E0      		ldi r25,lo8(1)
+ 105 0046 920F      		add r25,r18
+ 106               	.LVL9:
+ 107               		.loc 1 62 6 view .LVU35
+ 108 0048 2738      		cpi r18,lo8(-121)
+ 109 004a 01F0      		breq .L12
+ 110               	.LVL10:
+ 111               	.L6:
+  63:stepper.c     **** 			{
+  64:stepper.c     **** 				step = 0x80;
+  65:stepper.c     **** 			}
+  66:stepper.c     **** 		}
+  67:stepper.c     **** 		else if(--step == 0x7F)
+  68:stepper.c     **** 		{
+  69:stepper.c     **** 			step = 0x86;
+  70:stepper.c     **** 		}
+  71:stepper.c     **** 	}
+  72:stepper.c     **** 
+  73:stepper.c     **** 	*state = step;
+ 112               		.loc 1 73 2 is_stmt 1 view .LVU36
+ 113               		.loc 1 73 9 is_stmt 0 view .LVU37
+ 114 004c 9083      		st Z,r25
+  74:stepper.c     **** 	return ret;
+ 115               		.loc 1 74 2 is_stmt 1 view .LVU38
+ 116               	/* epilogue start */
+  75:stepper.c     **** }
+ 117               		.loc 1 75 1 is_stmt 0 view .LVU39
+ 118 004e 0895      		ret
+ 119               	.LVL11:
+ 120               	.L9:
+  67:stepper.c     **** 		{
+ 121               		.loc 1 67 8 is_stmt 1 view .LVU40
+  67:stepper.c     **** 		{
+ 122               		.loc 1 67 10 is_stmt 0 view .LVU41
+ 123 0050 9FEF      		ldi r25,lo8(-1)
+ 124 0052 920F      		add r25,r18
+ 125               	.LVL12:
+  67:stepper.c     **** 		{
+ 126               		.loc 1 67 10 view .LVU42
+ 127 0054 2038      		cpi r18,lo8(-128)
+ 128 0056 01F4      		brne .L6
+ 129 0058 00C0      		rjmp .L13
+ 130               		.cfi_endproc
+ 131               	.LFE0:
+ 133               	.global	step_list
+ 134               		.section	.rodata
+ 137               	step_list:
+ 138 0000 0A08 0901 		.ascii	"\n\b\t\001\005\004\006\002"
+ 138      0504 0602 
+ 139               		.text
+ 140               	.Letext0:
+ 141               		.file 2 "/usr/avr/include/stdint.h"
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 stepper.c
+     /tmp/cccrpe8g.s:2      *ABS*:000000000000003e __SP_H__
+     /tmp/cccrpe8g.s:3      *ABS*:000000000000003d __SP_L__
+     /tmp/cccrpe8g.s:4      *ABS*:000000000000003f __SREG__
+     /tmp/cccrpe8g.s:5      *ABS*:0000000000000000 __tmp_reg__
+     /tmp/cccrpe8g.s:6      *ABS*:0000000000000001 __zero_reg__
+     /tmp/cccrpe8g.s:12     .text:0000000000000000 next_step
+     /tmp/cccrpe8g.s:137    .rodata:0000000000000000 step_list
+
+UNDEFINED SYMBOLS
+__do_copy_data
